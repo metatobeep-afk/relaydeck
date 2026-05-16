@@ -78,22 +78,26 @@ function Nav() {
         </span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-        {[['#problem', 'Το Πρόβλημα'], ['#solution', 'Λύση'], ['#early-access', 'Early Access']].map(([href, label]) => (
-          <a key={href} href={href} style={{ fontSize: 13, color: C.muted, textDecoration: 'none', letterSpacing: '0.3px', transition: 'color 0.2s' }}
+        {[['problem', 'Το Πρόβλημα'], ['solution', 'Λύση'], ['early-access', 'Early Access']].map(([id, label]) => (
+          <button key={id} type="button"
+            onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+            style={{ fontSize: 13, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'none', letterSpacing: '0.3px', transition: 'color 0.2s', padding: 0 }}
             onMouseEnter={e => (e.currentTarget.style.color = C.cream)}
             onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
             {label}
-          </a>
+          </button>
         ))}
-        <a href="#request" style={{
-          background: C.orange, color: 'white', fontSize: 12, fontWeight: 700,
-          letterSpacing: '1px', textTransform: 'uppercase', textDecoration: 'none',
-          padding: '9px 20px', borderRadius: 6, transition: 'background 0.2s',
-        }}
+        <button type="button"
+          onClick={() => document.getElementById('request')?.scrollIntoView({ behavior: 'smooth' })}
+          style={{
+            background: C.orange, color: 'white', fontSize: 12, fontWeight: 700,
+            letterSpacing: '1px', textTransform: 'uppercase',
+            padding: '9px 20px', borderRadius: 6, border: 'none', cursor: 'pointer', transition: 'background 0.2s',
+          }}
           onMouseEnter={e => (e.currentTarget.style.background = C.orangeL)}
           onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
           Αίτηση Πρόσβασης
-        </a>
+        </button>
       </div>
     </nav>
   )
