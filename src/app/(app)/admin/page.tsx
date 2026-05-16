@@ -87,7 +87,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="px-8 py-7 max-w-5xl mx-auto">
+    <div className="px-4 py-5 md:px-8 md:py-7 max-w-5xl mx-auto">
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-slate-900">Admin — Πρόσκληση Πελατών</h1>
         <p className="text-sm text-slate-500 mt-0.5">Διαχείριση αιτήσεων και αποστολή προσκλήσεων Early Access</p>

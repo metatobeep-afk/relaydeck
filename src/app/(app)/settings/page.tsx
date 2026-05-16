@@ -81,7 +81,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="px-8 py-7 max-w-3xl mx-auto">
+    <div className="px-4 py-5 md:px-8 md:py-7 max-w-3xl mx-auto">
       <div className="mb-7">
         <h1 className="text-xl font-semibold text-slate-900">{L.settings}</h1>
         <p className="text-sm text-slate-500 mt-0.5">Στοιχεία εταιρείας, τραπεζικά και ρυθμίσεις τιμολογίου</p>

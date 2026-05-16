@@ -60,7 +60,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="px-8 py-7 max-w-6xl mx-auto">
+    <div className="px-4 py-5 md:px-8 md:py-7 max-w-6xl mx-auto">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -85,12 +85,12 @@ export default function OrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 mb-5">
-        <div className="relative">
+      <div className="flex flex-wrap gap-2 mb-5">
+        <div className="relative flex-1 min-w-[160px]">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
           <Input
             placeholder="Search order or customer…"
-            className="pl-8 w-64 h-8 text-sm"
+            className="pl-8 w-full h-8 text-sm"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />

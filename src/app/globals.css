@@ -190,6 +190,31 @@ body {
   border-radius: 10px;
 }
 
+/* ─── Table scroll wrapper (mobile) ───────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Cards that contain a table scroll horizontally on mobile */
+@media (max-width: 767px) {
+  .card:has(.data-table) {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+}
+
+/* ─── Filters bar (mobile wrap) ───────────────────────────── */
+@media (max-width: 639px) {
+  .filters-bar {
+    flex-wrap: wrap;
+  }
+  .filters-bar > * {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 /* ─── Status badges ────────────────────────────────────────── */
 .badge {
   display: inline-flex;

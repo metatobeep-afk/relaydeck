@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, ShoppingCart, Package, Users, Truck,
-  Factory, Mail, Settings, LogOut, Tablet, ShieldCheck,
+  Factory, Mail, Settings, LogOut, Tablet, ShieldCheck, X,
 } from 'lucide-react'
 import { LogoMark } from './logo-mark'
 import { L } from '@/lib/labels'
@@ -41,7 +41,12 @@ const navGroups = [
   },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  open?: boolean
+  onClose?: () => void
+}
+
+export function Sidebar({ open = false, onClose }: SidebarProps) {
   const pathname = usePathname()
   const router   = useRouter()
   const supabase = createClient()
@@ -58,7 +63,22 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="sidebar w-56 min-h-screen flex flex-col fixed left-0 top-0 bottom-0 z-40 select-none">
+    <aside className={cn(
+      'sidebar w-64 flex flex-col fixed left-0 top-0 bottom-0 z-40 select-none',
+      'transition-transform duration-200 ease-in-out',
+      'lg:translate-x-0 lg:w-56',
+      open ? 'translate-x-0' : '-translate-x-full',
+    )}>
+
+      {/* Mobile close button */}
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Κλείσιμο μενού"
+        className="lg:hidden absolute top-4 right-3 sidebar-item p-1.5 rounded-md"
+      >
+        <X className="w-4 h-4" />
+      </button>
 
       {/* Brand */}
       <div className="px-4 pt-5 pb-4">

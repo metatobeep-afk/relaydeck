@@ -69,7 +69,7 @@ export default function DashboardPage() {
   }, [])
 
   return (
-    <div className="px-8 py-7 max-w-6xl mx-auto">
+    <div className="px-4 py-5 md:px-8 md:py-7 max-w-6xl mx-auto">
 
       {/* Header */}
       <div className="mb-7">

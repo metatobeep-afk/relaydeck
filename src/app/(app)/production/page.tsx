@@ -79,7 +79,7 @@ export default function ProductionPage() {
   const byStage = (stage: ProductionStatus) => orders.filter(o => o.production_status === stage)
 
   return (
-    <div className="px-8 py-7">
+    <div className="px-4 py-5 md:px-8 md:py-7">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">

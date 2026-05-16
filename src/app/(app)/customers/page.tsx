@@ -77,7 +77,7 @@ export default function CustomersPage() {
     : customers
 
   return (
-    <div className="p-8">
+    <div className="px-4 py-5 md:px-8 md:py-7">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Customers (CRM)</h1>
