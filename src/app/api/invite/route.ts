@@ -31,6 +31,7 @@ export async function POST(req: Request) {
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite?token=${invite.token}`
 
   // Send invite email
+  let emailSent = false
   if (process.env.BREVO_API_KEY) {
     const html = `
     <!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#0f1623;color:#f1f5f9;padding:40px">
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
       </div>
     </div></body></html>`
 
-    await fetch('https://api.brevo.com/v3/smtp/email', {
+    const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -69,9 +70,17 @@ export async function POST(req: Request) {
         htmlContent: html,
       }),
     })
+    if (!brevoRes.ok) {
+      const errBody = await brevoRes.text()
+      console.error('[invite] Brevo error', brevoRes.status, errBody)
+    } else {
+      emailSent = true
+    }
+  } else {
+    console.warn('[invite] BREVO_API_KEY not set — email skipped. Invite URL:', inviteUrl)
   }
 
-  return NextResponse.json({ success: true, inviteUrl, token: invite.token })
+  return NextResponse.json({ success: true, inviteUrl, token: invite.token, emailSent })
 }
 
 export async function GET() {
