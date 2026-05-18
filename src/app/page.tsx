@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { LogoMark } from '@/components/layout/logo-mark'
+import { Menu, X } from 'lucide-react'
 
 // ─── Inline styles object for landing page ───────────────────
 const C = {
@@ -54,52 +55,127 @@ function FadeIn({ children, delay = 0, style }: { children: React.ReactNode; del
 // ─── NAVBAR ──────────────────────────────────────────────────
 function Nav() {
   const [scrolled, setScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
+
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', h)
     return () => window.removeEventListener('scroll', h)
   }, [])
 
+  function goto(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    setOpen(false)
+  }
+
+  const navLinks: [string, string][] = [
+    ['problem', 'Το Πρόβλημα'],
+    ['solution', 'Λύση'],
+    ['early-access', 'Early Access'],
+  ]
+
   return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 clamp(24px,5vw,80px)',
-      height: 64,
-      background: scrolled ? 'rgba(15,22,35,0.96)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(12px)' : 'none',
-      borderBottom: scrolled ? `1px solid ${C.border}` : '1px solid transparent',
-      transition: 'all 0.3s ease',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <LogoMark size={26} />
-        <span style={{ fontFamily: 'var(--font-sora)', fontWeight: 700, fontSize: 15, color: C.cream, letterSpacing: '-0.3px' }}>
-          RelayDeck
-        </span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-        {[['problem', 'Το Πρόβλημα'], ['solution', 'Λύση'], ['early-access', 'Early Access']].map(([id, label]) => (
-          <button key={id} type="button"
-            onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
-            style={{ fontSize: 13, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'none', letterSpacing: '0.3px', transition: 'color 0.2s', padding: 0 }}
-            onMouseEnter={e => (e.currentTarget.style.color = C.cream)}
-            onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
-            {label}
+    <>
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 clamp(20px,5vw,80px)',
+        height: 64,
+        background: scrolled || open ? 'rgba(15,22,35,0.97)' : 'transparent',
+        backdropFilter: scrolled || open ? 'blur(14px)' : 'none',
+        borderBottom: scrolled ? `1px solid ${C.border}` : '1px solid transparent',
+        transition: 'background 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease',
+      }}>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <LogoMark size={26} />
+          <span style={{ fontFamily: 'var(--font-sora)', fontWeight: 700, fontSize: 15, color: C.cream, letterSpacing: '-0.3px' }}>
+            RelayDeck
+          </span>
+        </div>
+
+        {/* Desktop links — hidden below sm */}
+        <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 32 }}>
+          {navLinks.map(([id, label]) => (
+            <button key={id} type="button" onClick={() => goto(id)}
+              style={{ fontSize: 13, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.3px', transition: 'color 0.2s', padding: 0 }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.cream)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+              {label}
+            </button>
+          ))}
+          <button type="button" onClick={() => goto('request')}
+            style={{ background: C.orange, color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', padding: '9px 20px', borderRadius: 6, border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+            onMouseEnter={e => (e.currentTarget.style.background = C.orangeL)}
+            onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
+            Αίτηση Πρόσβασης
           </button>
-        ))}
-        <button type="button"
-          onClick={() => document.getElementById('request')?.scrollIntoView({ behavior: 'smooth' })}
-          style={{
-            background: C.orange, color: 'white', fontSize: 12, fontWeight: 700,
-            letterSpacing: '1px', textTransform: 'uppercase',
-            padding: '9px 20px', borderRadius: 6, border: 'none', cursor: 'pointer', transition: 'background 0.2s',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.background = C.orangeL)}
-          onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
-          Αίτηση Πρόσβασης
+        </div>
+
+        {/* Hamburger — visible below sm */}
+        <button
+          type="button"
+          className="sm:hidden"
+          onClick={() => setOpen(o => !o)}
+          aria-label={open ? 'Κλείσιμο μενού' : 'Άνοιγμα μενού'}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.cream, padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Mobile menu overlay */}
+      {open && (
+        <div style={{
+          position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, zIndex: 99,
+          background: C.bg,
+          display: 'flex', flexDirection: 'column',
+          padding: '40px 28px 48px',
+          overflowY: 'auto',
+        }}
+          className="sm:hidden"
+        >
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+            {navLinks.map(([id, label]) => (
+              <button key={id} type="button" onClick={() => goto(id)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  textAlign: 'left', padding: '18px 0',
+                  fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-sora)',
+                  color: C.muted, letterSpacing: '-0.5px',
+                  borderBottom: `1px solid ${C.border}`,
+                  transition: 'color 0.15s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.cream)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <button type="button" onClick={() => goto('request')}
+              style={{
+                background: C.orange, color: 'white', border: 'none', cursor: 'pointer',
+                padding: '18px 24px', borderRadius: 8, width: '100%',
+                fontSize: 13, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = C.orangeL)}
+              onMouseLeave={e => (e.currentTarget.style.background = C.orange)}
+            >
+              Αίτηση Πρόσβασης →
+            </button>
+            <Link href="/login"
+              style={{ textAlign: 'center', fontSize: 13, color: C.muted, textDecoration: 'none', padding: '12px 0' }}
+            >
+              Σύνδεση →
+            </Link>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -199,7 +275,7 @@ function Hero() {
           </form>
         )}
 
-        <div style={{ display: 'flex', gap: 48, marginTop: 56, paddingTop: 32, borderTop: `1px solid ${C.border}`, flexWrap: 'wrap', animation: 'fadeInUp 0.8s ease 0.8s both' }}>
+        <div style={{ display: 'flex', gap: 'clamp(24px,5vw,48px)', marginTop: 56, paddingTop: 32, borderTop: `1px solid ${C.border}`, flexWrap: 'wrap', animation: 'fadeInUp 0.8s ease 0.8s both' }}>
           {[['50', 'θέσεις Early Access'], ['1 ημέρα', 'αντί 3 εβδομάδες'], ['0', 'εκπαίδευση χρόνος']].map(([val, lab]) => (
             <div key={lab}>
               <div style={{ fontFamily: 'var(--font-sora)', fontSize: 32, fontWeight: 800, color: C.orange, lineHeight: 1 }}>{val}</div>
@@ -351,7 +427,7 @@ function WhoFor() {
           <div style={S.eyebrow}><span style={S.orangeRule} />Για ποιους είναι</div>
           <h2 style={S.h2}>— και για ποιους <span style={{ color: C.orange }}>όχι.</span></h2>
         </FadeIn>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 52, maxWidth: 760 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 24, marginTop: 52, maxWidth: 760 }}>
           <FadeIn delay={0.1}>
             <div style={{ padding: '28px 24px', background: `${C.orange}0a`, border: `1px solid ${C.orange}25`, borderRadius: 10 }}>
               <p style={{ fontSize: 11, letterSpacing: '3px', textTransform: 'uppercase', color: C.orange, marginBottom: 20 }}>Ταιριάζει σε</p>
@@ -385,7 +461,7 @@ function EarlyAccess() {
   return (
     <section id="early-access" style={{ ...S.section, background: C.bg2, borderTop: `1px solid ${C.border}` }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 'clamp(40px,6vw,64px)', alignItems: 'center' }}>
           <FadeIn>
             <div style={S.eyebrow}><span style={S.orangeRule} />Γιατί τώρα — και γιατί λίγοι</div>
             <h2 style={S.h2}>
@@ -468,7 +544,7 @@ function RequestAccess() {
             </div>
           ) : (
             <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 12 }}>
                 <input type="text" placeholder="Επωνυμία εταιρείας *" required value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
                   style={inputStyle} onFocus={e => (e.target.style.borderColor = C.orange)} onBlur={e => (e.target.style.borderColor = C.border)} />
                 <input type="text" placeholder="Ονοματεπώνυμο *" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
