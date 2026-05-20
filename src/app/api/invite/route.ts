@@ -28,7 +28,10 @@ export async function POST(req: Request) {
     await adminClient.from('waitlist').update({ status: 'invited' }).eq('id', waitlist_id)
   }
 
-  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite?token=${invite.token}`
+  // Derive base URL from request origin — no env var needed
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '')
+    || new URL(req.url).origin
+  const inviteUrl = `${baseUrl}/invite?token=${invite.token}`
 
   // Send invite email
   let emailSent = false

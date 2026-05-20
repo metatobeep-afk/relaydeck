@@ -519,8 +519,16 @@ function RequestAccess() {
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setStatus('loading')
-    const res = await fetch('/api/request-access', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
-    setStatus(res.ok ? 'done' : 'error')
+    try {
+      const res = await fetch('/api/request-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      setStatus(res.ok ? 'done' : 'error')
+    } catch {
+      setStatus('error')
+    }
   }
 
   const inputStyle: React.CSSProperties = {
