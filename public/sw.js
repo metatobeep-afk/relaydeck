@@ -1,4 +1,4 @@
-const CACHE = 'relaydeck-v1'
+const CACHE = 'relaydeck-v2'
 
 // App shell assets to cache on install
 const PRECACHE = [
@@ -25,6 +25,10 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const { request } = e
   const url = new URL(request.url)
+
+  // Never intercept non-GET requests (POST/PUT/DELETE) — iOS Safari drops
+  // the request body when a service worker forwards these, causing API errors
+  if (request.method !== 'GET') return
 
   // Never intercept Supabase API calls — always go network-first
   if (url.hostname.includes('supabase.co')) return
