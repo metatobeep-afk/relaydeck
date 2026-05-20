@@ -36,32 +36,45 @@ export async function POST(req: Request) {
   // Send invite email
   let emailSent = false
   if (process.env.BREVO_API_KEY) {
-    const html = `
-    <!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#0f1623;color:#f1f5f9;padding:40px">
-    <div style="max-width:560px;margin:0 auto;background:#141e2e;border-radius:12px;overflow:hidden">
-      <div style="background:#E85400;padding:28px 32px">
-        <h1 style="margin:0;color:white;font-size:24px;font-weight:800">RelayDeck</h1>
-        <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px">B2B Ordering & Operations System</p>
-      </div>
-      <div style="padding:32px">
-        <h2 style="color:#f1f5f9;font-size:20px;margin:0 0 16px">Έχετε πρόσβαση στο Early Access</h2>
-        <p style="color:#8899aa;font-size:14px;line-height:1.7">
-          Η αίτησή σας για <strong style="color:#f1f5f9">${company_name}</strong> εγκρίθηκε.
-          Κάντε κλικ παρακάτω για να δημιουργήσετε τον λογαριασμό σας.
-        </p>
-        <div style="text-align:center;margin:32px 0">
-          <a href="${inviteUrl}" style="background:#E85400;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;display:inline-block">
-            ΕΝΕΡΓΟΠΟΙΗΣΤΕ ΤΟΝ ΛΟΓΑΡΙΑΣΜΟ →
-          </a>
-        </div>
-        <p style="color:#8899aa;font-size:12px;text-align:center">
-          Ο σύνδεσμος λήγει σε 72 ώρες. Αν δεν ζητήσατε πρόσβαση, αγνοήστε αυτό το email.
-        </p>
-      </div>
-      <div style="background:#0f1623;padding:16px 32px;text-align:center">
-        <p style="color:#8899aa;font-size:11px;margin:0">RelayDeck by Syntesys · AI Systems & Business Automation</p>
-      </div>
-    </div></body></html>`
+    const html = `<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif">
+<div style="max-width:520px;margin:40px auto;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #e4e4e7">
+
+  <div style="background:#E85400;padding:24px 32px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:22px;font-weight:900;color:white;letter-spacing:-0.5px">RelayDeck</span>
+  </div>
+
+  <div style="padding:36px 32px">
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;font-weight:600">Γεια σας,</p>
+    <p style="margin:0 0 24px;font-size:14px;color:#52525b;line-height:1.7">
+      Η εταιρεία <strong style="color:#18181b">${company_name}</strong> έχει πρόσκληση για να δημιουργήσει λογαριασμό στο <strong style="color:#18181b">RelayDeck</strong>.
+      Κάντε κλικ στον παρακάτω σύνδεσμο για να ξεκινήσετε:
+    </p>
+
+    <div style="text-align:center;margin:32px 0">
+      <a href="${inviteUrl}"
+        style="display:inline-block;background:#E85400;color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:7px;font-size:14px;font-weight:700;letter-spacing:0.5px">
+        Δημιουργία Λογαριασμού →
+      </a>
+    </div>
+
+    <p style="margin:24px 0 0;font-size:12px;color:#a1a1aa;text-align:center;line-height:1.6">
+      Ή αντιγράψτε τον σύνδεσμο:<br>
+      <span style="color:#E85400;word-break:break-all">${inviteUrl}</span>
+    </p>
+
+    <hr style="border:none;border-top:1px solid #e4e4e7;margin:28px 0">
+    <p style="margin:0;font-size:12px;color:#a1a1aa;text-align:center">
+      Ο σύνδεσμος ισχύει για <strong>72 ώρες</strong>. Αν δεν περιμένατε αυτό το email, αγνοήστε το.
+    </p>
+  </div>
+
+  <div style="background:#fafafa;padding:14px 32px;text-align:center;border-top:1px solid #e4e4e7">
+    <p style="margin:0;font-size:11px;color:#a1a1aa">RelayDeck · Syntesys</p>
+  </div>
+
+</div>
+</body></html>`
 
     const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
@@ -69,7 +82,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         sender: { name: 'RelayDeck', email: process.env.SENDER_EMAIL ?? 'noreply@relaydeck.app' },
         to: [{ email, name: company_name }],
-        subject: 'Η πρόσβασή σας στο RelayDeck εγκρίθηκε',
+        subject: `Πρόσκληση δημιουργίας λογαριασμού — ${company_name}`,
         htmlContent: html,
       }),
     })
