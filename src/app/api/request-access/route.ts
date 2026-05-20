@@ -39,7 +39,7 @@ export async function POST(req: Request) {
         headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sender: { name: 'RelayDeck', email: process.env.SENDER_EMAIL ?? 'noreply@relaydeck.app' },
-          to: [{ email: process.env.ADMIN_EMAIL ?? 'metatobeep@gmail.com', name: 'RelayDeck Admin' }],
+          to: [{ email: process.env.ADMIN_EMAIL ?? 'cbrickvalue@gmail.com', name: 'RelayDeck Admin' }],
           subject: `Νέα αίτηση: ${company}`,
           htmlContent: `<p><b>${company}</b> — ${name || '—'} — <a href="mailto:${email}">${email}</a> — ${phone || '—'}</p>`,
         }),

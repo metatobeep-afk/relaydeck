@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       sender: { name: 'RelayDeck Test', email: senderEmail ?? 'noreply@relaydeck.app' },
-      to: [{ email: adminEmail ?? 'metatobeep@gmail.com', name: 'Admin' }],
+      to: [{ email: adminEmail ?? 'cbrickvalue@gmail.com', name: 'Admin' }],
       subject: 'RelayDeck — Email Test',
       htmlContent: '<p>If you see this, Brevo is connected correctly.</p>',
     }),
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     env_check: {
       BREVO_API_KEY: apiKey ? `set (ends ...${apiKey.slice(-6)})` : 'MISSING',
       SENDER_EMAIL: senderEmail ?? 'not set — defaulting to noreply@relaydeck.app',
-      ADMIN_EMAIL: adminEmail ?? 'not set — defaulting to metatobeep@gmail.com',
+      ADMIN_EMAIL: adminEmail ?? 'not set — defaulting to cbrickvalue@gmail.com',
     },
   })
 }
