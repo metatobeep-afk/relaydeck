@@ -8,6 +8,9 @@ export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
   const { pathname } = request.nextUrl
 
+  // API routes handle their own auth — never redirect them
+  if (pathname.startsWith('/api/')) return supabaseResponse
+
   const isPublic = PUBLIC_ROUTES.some(r =>
     pathname === r || pathname.startsWith('/invite')
   )
