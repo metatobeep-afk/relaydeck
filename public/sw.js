@@ -1,4 +1,4 @@
-const CACHE = 'relaydeck-v2'
+const CACHE = 'relaydeck-v3'
 
 // App shell assets to cache on install
 const PRECACHE = [
