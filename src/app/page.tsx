@@ -94,22 +94,24 @@ function Nav() {
           </span>
         </div>
 
-        {/* Desktop links — hidden below sm */}
+        {/* Desktop links — hidden below sm, original <a> tag style */}
         <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 32 }}>
           {navLinks.map(([id, label]) => (
-            <button key={id} type="button" onClick={() => goto(id)}
-              style={{ fontSize: 13, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.3px', transition: 'color 0.2s', padding: 0 }}
+            <a key={id} href={`#${id}`}
+              onClick={e => { e.preventDefault(); goto(id) }}
+              style={{ fontSize: 13, color: C.muted, textDecoration: 'none', letterSpacing: '0.3px', transition: 'color 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.color = C.cream)}
               onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
               {label}
-            </button>
+            </a>
           ))}
-          <button type="button" onClick={() => goto('request')}
-            style={{ background: C.orange, color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', padding: '9px 20px', borderRadius: 6, border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+          <a href="#request"
+            onClick={e => { e.preventDefault(); goto('request') }}
+            style={{ background: C.orange, color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textDecoration: 'none', padding: '9px 20px', borderRadius: 6, transition: 'background 0.2s' }}
             onMouseEnter={e => (e.currentTarget.style.background = C.orangeL)}
             onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
             Αίτηση Πρόσβασης
-          </button>
+          </a>
         </div>
 
         {/* Hamburger — visible below sm */}
@@ -188,12 +190,16 @@ function Hero() {
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setStatus('loading')
-    const res = await fetch('/api/request-access', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, company }),
-    })
-    setStatus(res.ok ? 'done' : 'error')
+    try {
+      const res = await fetch('/api/request-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, company }),
+      })
+      setStatus(res.ok ? 'done' : 'error')
+    } catch {
+      setStatus('error')
+    }
   }
 
   return (
