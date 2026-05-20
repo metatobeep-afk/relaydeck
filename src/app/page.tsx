@@ -183,24 +183,6 @@ function Nav() {
 
 // ─── HERO ────────────────────────────────────────────────────
 function Hero() {
-  const [email, setEmail] = useState('')
-  const [company, setCompany] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    setStatus('loading')
-    try {
-      const res = await fetch('/api/request-access', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, company }),
-      })
-      setStatus(res.ok ? 'done' : 'error')
-    } catch {
-      setStatus('error')
-    }
-  }
 
   return (
     <section style={{
@@ -255,31 +237,21 @@ function Hero() {
           για B2B επιχειρήσεις που δουλεύουν με εκθέσεις & χονδρική.
         </p>
 
-        {status === 'done' ? (
-          <div style={{ marginTop: 36, padding: '16px 24px', background: 'rgba(232,84,0,0.12)', border: `1px solid ${C.orange}40`, borderRadius: 8, animation: 'fadeInUp 0.5s ease both' }}>
-            <p style={{ color: C.orange, fontWeight: 600, fontSize: 14 }}>✓ Η αίτησή σας καταχωρήθηκε</p>
-            <p style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>Θα επικοινωνήσουμε μαζί σας εντός 24 ωρών.</p>
-          </div>
-        ) : (
-          <form onSubmit={submit} style={{ marginTop: 36, display: 'flex', gap: 10, maxWidth: 500, flexWrap: 'wrap', animation: 'fadeInUp 0.8s ease 0.65s both' }}>
-            <input type="text" placeholder="Επωνυμία εταιρείας" value={company} onChange={e => setCompany(e.target.value)} required
-              style={{ flex: '1 1 180px', background: 'rgba(255,255,255,0.05)', border: `1px solid ${C.border}`, color: C.cream, padding: '13px 18px', fontSize: 14, borderRadius: 6, outline: 'none', transition: 'border-color 0.2s' }}
-              onFocus={e => (e.target.style.borderColor = C.orange)} onBlur={e => (e.target.style.borderColor = C.border)} />
-            <input type="email" placeholder="Email επικοινωνίας" value={email} onChange={e => setEmail(e.target.value)} required
-              style={{ flex: '1 1 200px', background: 'rgba(255,255,255,0.05)', border: `1px solid ${C.border}`, color: C.cream, padding: '13px 18px', fontSize: 14, borderRadius: 6, outline: 'none', transition: 'border-color 0.2s' }}
-              onFocus={e => (e.target.style.borderColor = C.orange)} onBlur={e => (e.target.style.borderColor = C.border)} />
-            <button type="submit" disabled={status === 'loading'} style={{
-              background: C.orange, color: 'white', border: 'none', padding: '13px 28px',
+        <div style={{ marginTop: 36, animation: 'fadeInUp 0.8s ease 0.65s both' }}>
+          <button
+            type="button"
+            onClick={() => document.getElementById('request')?.scrollIntoView({ behavior: 'smooth' })}
+            style={{
+              background: C.orange, color: 'white', border: 'none', padding: '15px 36px',
               fontSize: 12, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
               borderRadius: 6, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.2s',
             }}
-              onMouseEnter={e => (e.currentTarget.style.background = C.orangeL)}
-              onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
-              {status === 'loading' ? '…' : 'Αιτηθείτε Πρόσβαση'}
-            </button>
-            {status === 'error' && <p style={{ fontSize: 12, color: '#ef4444', width: '100%', marginTop: 4 }}>Κάτι πήγε στραβά. Δοκιμάστε ξανά.</p>}
-          </form>
-        )}
+            onMouseEnter={e => (e.currentTarget.style.background = C.orangeL)}
+            onMouseLeave={e => (e.currentTarget.style.background = C.orange)}
+          >
+            Αιτηθείτε Πρόσβαση →
+          </button>
+        </div>
 
         <div style={{ display: 'flex', gap: 'clamp(24px,5vw,48px)', marginTop: 56, paddingTop: 32, borderTop: `1px solid ${C.border}`, flexWrap: 'wrap', animation: 'fadeInUp 0.8s ease 0.8s both' }}>
           {[['50', 'θέσεις Early Access'], ['1 ημέρα', 'αντί 3 εβδομάδες'], ['0', 'εκπαίδευση χρόνος']].map(([val, lab]) => (
