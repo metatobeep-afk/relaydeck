@@ -114,13 +114,13 @@ function Nav() {
           </a>
         </div>
 
-        {/* Hamburger — visible below sm */}
+        {/* Hamburger — visible below sm only */}
         <button
           type="button"
-          className="sm:hidden"
+          className="sm:hidden flex items-center justify-center"
           onClick={() => setOpen(o => !o)}
           aria-label={open ? 'Κλείσιμο μενού' : 'Άνοιγμα μενού'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.cream, padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.cream, padding: 8 }}
         >
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
