@@ -87,18 +87,33 @@ ${lineItems}
 async function postWithRedirects(url: string, headers: Record<string, string>, body: string): Promise<Response> {
   let currentUrl = url
   const chain: string[] = [url]
+  const cookieJar: string[] = []
+
   for (let attempt = 0; attempt <= 5; attempt++) {
+    const reqHeaders: Record<string, string> = { ...headers }
+    if (cookieJar.length > 0) reqHeaders['Cookie'] = cookieJar.join('; ')
+
     let res: Response
     try {
-      res = await fetch(currentUrl, { method: 'POST', redirect: 'manual', headers, body })
+      res = await fetch(currentUrl, { method: 'POST', redirect: 'manual', headers: reqHeaders, body })
     } catch (err: unknown) {
       const cause = err instanceof Error ? (err as NodeJS.ErrnoException).cause ?? err.message : String(err)
       throw new Error(`myDATA connection failed — URL: ${currentUrl} | Cause: ${cause}`)
     }
+
+    // Collect any cookies set by the server (e.g. Azure ARRAffinity)
+    const setCookie = res.headers.get('set-cookie')
+    if (setCookie) {
+      setCookie.split(/,(?=[^ ])/).forEach(c => {
+        const pair = c.trim().split(';')[0]
+        if (pair) cookieJar.push(pair)
+      })
+    }
+
     if (res.status >= 300 && res.status < 400) {
       const location = res.headers.get('location')
       if (!location) throw new Error(`myDATA redirect ${res.status} with no Location header from ${currentUrl}`)
-      chain.push(`${res.status}→${location}`)
+      chain.push(`${res.status}→${location} cookies:${cookieJar.join(',')}`)
       currentUrl = location
       continue
     }
