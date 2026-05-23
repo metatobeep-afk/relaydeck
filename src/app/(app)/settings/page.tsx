@@ -153,9 +153,7 @@ export default function SettingsPage() {
               <Input id="s-sender-email" type="email" value={settings.sender_email} onChange={e => set('sender_email', e.target.value)} placeholder="orders@company.gr" />
             </Field>
           </div>
-          <p className="text-xs text-slate-400">
-            Ορίστε επίσης <code className="bg-slate-100 px-1 rounded">BREVO_API_KEY</code> στο <code className="bg-slate-100 px-1 rounded">.env.local</code>
-          </p>
+
         </Section>
 
         <div className="flex justify-end">
