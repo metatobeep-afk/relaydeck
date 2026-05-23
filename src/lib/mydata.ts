@@ -86,6 +86,7 @@ ${lineItems}
 
 async function postWithRedirects(url: string, headers: Record<string, string>, body: string): Promise<Response> {
   let currentUrl = url
+  const chain: string[] = [url]
   for (let attempt = 0; attempt <= 5; attempt++) {
     let res: Response
     try {
@@ -97,12 +98,13 @@ async function postWithRedirects(url: string, headers: Record<string, string>, b
     if (res.status >= 300 && res.status < 400) {
       const location = res.headers.get('location')
       if (!location) throw new Error(`myDATA redirect ${res.status} with no Location header from ${currentUrl}`)
+      chain.push(`${res.status}→${location}`)
       currentUrl = location
       continue
     }
     return res
   }
-  throw new Error(`myDATA redirect loop — too many redirects from ${url}`)
+  throw new Error(`myDATA redirect loop: ${chain.join(' | ')}`)
 }
 
 export async function submitToMyData(xml: string): Promise<{ mark: string; uid: string; authCode: string }> {
