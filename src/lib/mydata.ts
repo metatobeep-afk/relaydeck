@@ -84,34 +84,36 @@ ${lineItems}
 </InvoicesDoc>`
 }
 
-export async function submitToMyData(xml: string): Promise<{ mark: string; uid: string; authCode: string }> {
-  // Ensure base URL always has a trailing slash so SendInvoices appends correctly
-  const base = BASE_URL.endsWith('/') ? BASE_URL : `${BASE_URL}/`
-  let url = `${base}SendInvoices`
-
-  const headers = {
-    'Content-Type': 'application/xml',
-    'aade-user-id': USER_ID,
-    'Ocp-Apim-Subscription-Key': SUBKEY,
-  }
-
-  // Follow redirects manually so we always re-send as POST (fetch changes POST→GET on 301/302)
-  let res: Response
+async function postWithRedirects(url: string, headers: Record<string, string>, body: string): Promise<Response> {
+  let currentUrl = url
   for (let attempt = 0; attempt <= 5; attempt++) {
+    let res: Response
     try {
-      res = await fetch(url, { method: 'POST', redirect: 'manual', headers, body: xml })
+      res = await fetch(currentUrl, { method: 'POST', redirect: 'manual', headers, body })
     } catch (err: unknown) {
       const cause = err instanceof Error ? (err as NodeJS.ErrnoException).cause ?? err.message : String(err)
-      throw new Error(`myDATA connection failed — URL: ${url} | Cause: ${cause}`)
+      throw new Error(`myDATA connection failed — URL: ${currentUrl} | Cause: ${cause}`)
     }
     if (res.status >= 300 && res.status < 400) {
       const location = res.headers.get('location')
-      if (!location) throw new Error(`myDATA redirect ${res.status} with no Location header`)
-      url = location
+      if (!location) throw new Error(`myDATA redirect ${res.status} with no Location header from ${currentUrl}`)
+      currentUrl = location
       continue
     }
-    break
+    return res
   }
+  throw new Error(`myDATA redirect loop — too many redirects from ${url}`)
+}
+
+export async function submitToMyData(xml: string): Promise<{ mark: string; uid: string; authCode: string }> {
+  const base = BASE_URL.endsWith('/') ? BASE_URL : `${BASE_URL}/`
+  const url = `${base}SendInvoices`
+
+  const res = await postWithRedirects(url, {
+    'Content-Type': 'application/xml',
+    'aade-user-id': USER_ID,
+    'Ocp-Apim-Subscription-Key': SUBKEY,
+  }, xml)
 
   const text = await res.text()
 
