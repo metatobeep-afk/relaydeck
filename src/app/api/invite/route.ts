@@ -7,7 +7,7 @@ const adminClient = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const OWNER_EMAIL = 'cbrickvalue@gmail.com'
+const OWNER_EMAIL = 'metatobeep@gmail.com'
 
 async function requireOwner() {
   const supabase = await createServerClient()

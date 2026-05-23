@@ -11,7 +11,7 @@ import {
 import { LogoMark } from './logo-mark'
 import { L } from '@/lib/labels'
 
-const OWNER_EMAIL = 'cbrickvalue@gmail.com'
+const OWNER_EMAIL = 'metatobeep@gmail.com'
 
 const navGroups = [
   {

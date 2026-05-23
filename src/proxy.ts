@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 // Routes accessible without authentication
 const PUBLIC_ROUTES = ['/', '/login', '/register', '/invite', '/request-access']
 
-const OWNER_EMAIL = 'cbrickvalue@gmail.com'
+const OWNER_EMAIL = 'metatobeep@gmail.com'
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
