@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -9,6 +10,8 @@ import {
 } from 'lucide-react'
 import { LogoMark } from './logo-mark'
 import { L } from '@/lib/labels'
+
+const OWNER_EMAIL = 'cbrickvalue@gmail.com'
 
 const navGroups = [
   {
@@ -50,6 +53,13 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
   const pathname = usePathname()
   const router   = useRouter()
   const supabase = createClient()
+  const [isOwner, setIsOwner] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setIsOwner(data.user?.email === OWNER_EMAIL)
+    })
+  }, [])
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -104,7 +114,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 space-y-5 overflow-y-auto">
-        {navGroups.map(group => (
+        {navGroups.filter(g => g.label !== 'Admin' || isOwner).map(group => (
           <div key={group.label}>
             <p className="sidebar-section-label px-2 mb-1.5 text-[10px] font-semibold uppercase tracking-widest">
               {group.label}

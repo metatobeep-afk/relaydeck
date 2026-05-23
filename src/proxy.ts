@@ -4,6 +4,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 // Routes accessible without authentication
 const PUBLIC_ROUTES = ['/', '/login', '/register', '/invite', '/request-access']
 
+const OWNER_EMAIL = 'cbrickvalue@gmail.com'
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
   const { pathname } = request.nextUrl
@@ -36,6 +38,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
   if (user && pathname === '/login') {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+  if (pathname.startsWith('/admin') && user?.email !== OWNER_EMAIL) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

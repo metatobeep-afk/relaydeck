@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const OWNER_EMAIL = 'cbrickvalue@gmail.com'
+
+async function requireOwner() {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user?.email === OWNER_EMAIL ? null : NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+}
+
 export async function POST(req: Request) {
+  const forbidden = await requireOwner()
+  if (forbidden) return forbidden
+
   const { email, company_name, waitlist_id } = await req.json()
   if (!email || !company_name) {
     return NextResponse.json({ error: 'email and company_name required' }, { status: 400 })
@@ -87,6 +99,9 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
+  const forbidden = await requireOwner()
+  if (forbidden) return forbidden
+
   const { data } = await adminClient
     .from('invites')
     .select('*')
