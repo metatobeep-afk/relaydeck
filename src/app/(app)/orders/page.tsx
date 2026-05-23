@@ -5,12 +5,14 @@ import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { PAYMENT_STATUS_LABELS, PRODUCTION_STATUS_LABELS, formatCurrency, formatDate } from '@/lib/utils'
+import { useRole } from '@/lib/role-context'
 import type { OrderWithCustomer } from '@/types/database'
 import { Search, Plus, Download, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function OrdersPage() {
   const supabase = createClient()
+  const isAdmin = useRole() === 'admin'
   const [orders, setOrders] = useState<OrderWithCustomer[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -71,10 +73,12 @@ export default function OrdersPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={exportCSV}>
-            <Download className="w-3.5 h-3.5" />
-            Εξαγωγή CSV
-          </Button>
+          {isAdmin && (
+            <Button variant="outline" size="sm" onClick={exportCSV}>
+              <Download className="w-3.5 h-3.5" />
+              Εξαγωγή CSV
+            </Button>
+          )}
           <Link href="/orders/new">
             <Button size="sm">
               <Plus className="w-3.5 h-3.5" />
@@ -127,7 +131,7 @@ export default function OrdersPage() {
               <th>Παραγγελία</th>
               <th>Πελάτης</th>
               <th>Ημερομηνία</th>
-              <th>Σύνολο</th>
+              {isAdmin && <th>Σύνολο</th>}
               <th>Πληρωμή</th>
               <th>Παραγωγή</th>
               <th>Αποστολή</th>
@@ -164,9 +168,11 @@ export default function OrdersPage() {
                   <span className="text-xs text-slate-400">{order.customers?.contact_name}</span>
                 </td>
                 <td className="text-slate-500 text-[13px]">{formatDate(order.created_at)}</td>
-                <td className="font-semibold text-slate-900 text-[13px]">
-                  {formatCurrency(order.total_price)}
-                </td>
+                {isAdmin && (
+                  <td className="font-semibold text-slate-900 text-[13px]">
+                    {formatCurrency(order.total_price)}
+                  </td>
+                )}
                 <td>
                   <span className={`badge ${PAYMENT_STATUS_LABELS[order.payment_status]?.color}`}>
                     {PAYMENT_STATUS_LABELS[order.payment_status]?.label}

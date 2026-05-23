@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatCurrency, formatDate, PAYMENT_STATUS_LABELS, PRODUCTION_STATUS_LABELS, SHIPPING_STATUS_LABELS } from '@/lib/utils'
 import { L } from '@/lib/labels'
 import type { PaymentStatus, ProductionStatus, ShippingStatus } from '@/types/database'
+import { useRole } from '@/lib/role-context'
 import {
   ArrowLeft, Send, Banknote, FileDown, User, Phone, Mail,
   MapPin, FileText, CheckCircle2, AlertCircle, Loader2, Receipt
@@ -63,6 +64,7 @@ export default function OrderDetailPage() {
 
   const [order, setOrder] = useState<FullOrder | null>(null)
   const [settings, setSettings] = useState<CompanySettings>(DEFAULT_SETTINGS)
+  const isAdmin = useRole() === 'admin'
   const [saving, setSaving] = useState(false)
   const [emailState, setEmailState] = useState<ActionState>('idle')
   const [pdfState, setPdfState] = useState<ActionState>('idle')
@@ -283,12 +285,12 @@ export default function OrderDetailPage() {
         </div>
         {/* Action buttons */}
         <div className="flex gap-2">
-          {order.invoice_mark ? (
+          {isAdmin && order.invoice_mark ? (
             <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg font-medium">
               <Receipt className="w-3.5 h-3.5" />
               {order.invoice_number} · MARK: {order.invoice_mark}
             </div>
-          ) : (
+          ) : isAdmin ? (
             <Button
               variant="outline"
               size="sm"
@@ -300,7 +302,7 @@ export default function OrderDetailPage() {
                 : <Receipt className="w-3.5 h-3.5" />}
               Έκδοση Τιμολογίου
             </Button>
-          )}
+          ) : null}
           <Button
             variant="outline"
             size="sm"
@@ -400,21 +402,23 @@ export default function OrderDetailPage() {
             )}
           </div>
 
-          {/* Totals summary */}
-          <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
-            <div className="flex justify-between text-[13px]">
-              <span className="text-slate-500">Σύνολο</span>
-              <span className="font-semibold text-slate-900">{formatCurrency(order.total_price)}</span>
+          {/* Totals summary — admin only */}
+          {isAdmin && (
+            <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
+              <div className="flex justify-between text-[13px]">
+                <span className="text-slate-500">Σύνολο</span>
+                <span className="font-semibold text-slate-900">{formatCurrency(order.total_price)}</span>
+              </div>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-indigo-600">{L.deposit}</span>
+                <span className="font-semibold text-indigo-700">{formatCurrency(deposit)}</span>
+              </div>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-slate-500">{L.remainingAmount}</span>
+                <span className="font-medium text-slate-700">{formatCurrency(remaining)}</span>
+              </div>
             </div>
-            <div className="flex justify-between text-[13px]">
-              <span className="text-indigo-600">{L.deposit}</span>
-              <span className="font-semibold text-indigo-700">{formatCurrency(deposit)}</span>
-            </div>
-            <div className="flex justify-between text-[13px]">
-              <span className="text-slate-500">{L.remainingAmount}</span>
-              <span className="font-medium text-slate-700">{formatCurrency(remaining)}</span>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Line items */}

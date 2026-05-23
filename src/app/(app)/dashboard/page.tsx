@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency, formatDate, PAYMENT_STATUS_LABELS, PRODUCTION_STATUS_LABELS } from '@/lib/utils'
+import { useRole } from '@/lib/role-context'
 import React from 'react'
 import { ShoppingCart, TrendingUp, Clock, Users, Factory, CheckCircle2, ArrowRight } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -54,6 +55,8 @@ const yAxisTickStyle = { fontSize: 11, fill: 'hsl(222,6%,58%)' }
 
 export default function DashboardPage() {
   const supabase = createClient()
+  const role = useRole()
+  const isAdmin = role === 'admin'
   const [stats, setStats] = useState<Stats | null>(null)
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([])
   const [topCustomers, setTopCustomers] = useState<TopCustomer[]>([])
@@ -118,7 +121,7 @@ export default function DashboardPage() {
 
       {/* KPI grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-7">
-        {KPI_CONFIG.map(({ key, label, icon: Icon, iconBg, iconColor, format }) => {
+        {KPI_CONFIG.filter(k => isAdmin || k.key !== 'totalRevenue').map(({ key, label, icon: Icon, iconBg, iconColor, format }) => {
           const raw = stats?.[key] ?? 0
           const value = format ? formatCurrency(raw as number) : String(raw as number)
           return (
@@ -146,14 +149,18 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
 
-        {/* Revenue chart */}
-        <div className="lg:col-span-2 card p-6">
+        {/* Revenue chart — admin only */}
+        <div className={`card p-6 ${isAdmin ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
           <div className="mb-5">
             <h2 className="text-sm font-semibold text-slate-900">Τζίρος ανά Μήνα</h2>
             <p className="text-xs text-slate-400 mt-0.5">Σύνολα παραγγελιών ανά μήνα</p>
           </div>
           {loading ? (
             <div className="h-52 animate-pulse bg-slate-50 rounded-lg" />
+          ) : !isAdmin ? (
+            <div className="h-52 flex items-center justify-center text-slate-300 text-sm">
+              Δεν έχετε πρόσβαση στα οικονομικά δεδομένα
+            </div>
           ) : stats && stats.revenueByMonth.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={stats.revenueByMonth} barSize={26}>
@@ -181,8 +188,8 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Top customers */}
-        <div className="card p-5">
+        {/* Top customers — admin only */}
+        {isAdmin && <div className="card p-5">
           <h2 className="text-sm font-semibold text-slate-900 mb-4">Κορυφαίοι Πελάτες</h2>
           {loading ? (
             <div className="space-y-3">
@@ -210,7 +217,7 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-        </div>
+        </div>}
       </div>
 
       {/* Recent orders */}
@@ -227,7 +234,7 @@ export default function DashboardPage() {
               <th>Παραγγελία</th>
               <th>Πελάτης</th>
               <th>Ημερομηνία</th>
-              <th>Σύνολο</th>
+              {isAdmin && <th>Σύνολο</th>}
               <th>Πληρωμή</th>
               <th>Παραγωγή</th>
               <th><span className="sr-only">Προβολή</span></th>
@@ -245,7 +252,7 @@ export default function DashboardPage() {
                 <td><span className="font-mono text-xs font-semibold text-indigo-600">{order.order_number}</span></td>
                 <td className="font-medium text-slate-900 text-[13px]">{order.customers?.business_name}</td>
                 <td className="text-slate-500 text-[13px]">{formatDate(order.created_at)}</td>
-                <td className="font-semibold text-slate-900 text-[13px]">{formatCurrency(order.total_price)}</td>
+                {isAdmin && <td className="font-semibold text-slate-900 text-[13px]">{formatCurrency(order.total_price)}</td>}
                 <td><span className={`badge ${PAYMENT_STATUS_LABELS[order.payment_status]?.color}`}>{PAYMENT_STATUS_LABELS[order.payment_status]?.label}</span></td>
                 <td><span className={`badge ${PRODUCTION_STATUS_LABELS[order.production_status]?.color}`}>{PRODUCTION_STATUS_LABELS[order.production_status]?.label}</span></td>
                 <td>

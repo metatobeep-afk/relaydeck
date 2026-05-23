@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
+import { useRole } from '@/lib/role-context'
 import { AlertTriangle, Package, Loader2, CheckCircle2, Edit2, X } from 'lucide-react'
 
 interface Material {
@@ -20,6 +21,7 @@ const LOW_STOCK_THRESHOLD = 10
 
 export default function StockPage() {
   const supabase = createClient()
+  const isAdmin = useRole() === 'admin'
   const [materials, setMaterials] = useState<Material[]>([])
   const [loading, setLoading] = useState(true)
   const [editId, setEditId] = useState<string | null>(null)
@@ -83,7 +85,7 @@ export default function StockPage() {
 
       {/* Summary cards */}
       {!loading && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className={`grid gap-4 mb-6 ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <div className="card p-4">
             <p className="text-xs text-slate-400 mb-1">Σύνολο Υλικών</p>
             <p className="text-2xl font-semibold text-slate-900">{materials.length}</p>
@@ -92,12 +94,14 @@ export default function StockPage() {
             <p className="text-xs text-slate-400 mb-1">Χαμηλό Απόθεμα</p>
             <p className="text-2xl font-semibold text-amber-600">{lowStock.length}</p>
           </div>
-          <div className="card p-4">
-            <p className="text-xs text-slate-400 mb-1">Αξία Αποθέματος</p>
-            <p className="text-2xl font-semibold text-slate-900">
-              {formatCurrency(materials.reduce((s, m) => s + m.cost_per_unit * m.stock_quantity, 0))}
-            </p>
-          </div>
+          {isAdmin && (
+            <div className="card p-4">
+              <p className="text-xs text-slate-400 mb-1">Αξία Αποθέματος</p>
+              <p className="text-2xl font-semibold text-slate-900">
+                {formatCurrency(materials.reduce((s, m) => s + m.cost_per_unit * m.stock_quantity, 0))}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -118,10 +122,10 @@ export default function StockPage() {
             <tr>
               <th>Υλικό</th>
               <th>Προμηθευτής</th>
-              <th className="text-right">Κόστος/Μον.</th>
+              {isAdmin && <th className="text-right">Κόστος/Μον.</th>}
               <th className="text-center">Μονάδα</th>
               <th className="text-center">Ποσότητα</th>
-              <th className="text-right">Αξία</th>
+              {isAdmin && <th className="text-right">Αξία</th>}
               <th><span className="sr-only">Επεξεργασία</span></th>
             </tr>
           </thead>
@@ -150,7 +154,7 @@ export default function StockPage() {
                     </div>
                   </td>
                   <td className="text-slate-500 text-[13px]">{m.suppliers?.name ?? '—'}</td>
-                  <td className="text-right text-[13px] text-slate-600">{formatCurrency(m.cost_per_unit)}</td>
+                  {isAdmin && <td className="text-right text-[13px] text-slate-600">{formatCurrency(m.cost_per_unit)}</td>}
                   <td className="text-center text-[13px] text-slate-500">{m.unit}</td>
                   <td className="text-center">
                     {isEditing ? (
@@ -164,10 +168,10 @@ export default function StockPage() {
                           onKeyDown={e => { if (e.key === 'Enter') saveQty(m.id); if (e.key === 'Escape') setEditId(null) }}
                         />
                         <button type="button" onClick={() => saveQty(m.id)} disabled={saving}
-                          className="text-emerald-600 hover:text-emerald-700">
+                          aria-label="Αποθήκευση" className="text-emerald-600 hover:text-emerald-700">
                           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
                         </button>
-                        <button type="button" onClick={() => setEditId(null)} className="text-slate-400 hover:text-slate-600">
+                        <button type="button" onClick={() => setEditId(null)} aria-label="Ακύρωση" className="text-slate-400 hover:text-slate-600">
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -177,12 +181,14 @@ export default function StockPage() {
                       </span>
                     )}
                   </td>
-                  <td className="text-right text-[13px] text-slate-600">
-                    {formatCurrency(m.cost_per_unit * m.stock_quantity)}
-                  </td>
+                  {isAdmin && (
+                    <td className="text-right text-[13px] text-slate-600">
+                      {formatCurrency(m.cost_per_unit * m.stock_quantity)}
+                    </td>
+                  )}
                   <td>
                     {!isEditing && (
-                      <button type="button"
+                      <button type="button" aria-label="Επεξεργασία ποσότητας"
                         onClick={() => { setEditId(m.id); setEditQty(String(m.stock_quantity)) }}
                         className="text-slate-400 hover:text-indigo-600 transition-colors">
                         <Edit2 className="w-3.5 h-3.5" />
