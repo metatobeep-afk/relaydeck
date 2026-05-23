@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Routes accessible without authentication
-const PUBLIC_ROUTES = ['/', '/login', '/register', '/invite', '/request-access']
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/invite', '/request-access', '/forgot-password', '/reset-password']
 
 const OWNER_EMAIL = 'metatobeep@gmail.com'
 
