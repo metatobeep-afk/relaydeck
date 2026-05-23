@@ -86,10 +86,12 @@ ${lineItems}
 
 export async function submitToMyData(xml: string): Promise<{ mark: string; uid: string; authCode: string }> {
   const url = `${BASE_URL}SendInvoices`
+  // Use manual redirect to detect where the server is redirecting instead of looping
   let res: Response
   try {
     res = await fetch(url, {
       method: 'POST',
+      redirect: 'manual',
       headers: {
         'Content-Type': 'application/xml',
         'aade-user-id': USER_ID,
@@ -100,6 +102,12 @@ export async function submitToMyData(xml: string): Promise<{ mark: string; uid: 
   } catch (err: unknown) {
     const cause = err instanceof Error ? (err as NodeJS.ErrnoException).cause ?? err.message : String(err)
     throw new Error(`myDATA connection failed — URL: ${url} | Cause: ${cause}`)
+  }
+
+  // If redirected, surface the Location so we know the real endpoint
+  if (res.status >= 300 && res.status < 400) {
+    const location = res.headers.get('location') ?? '(no location header)'
+    throw new Error(`myDATA redirect ${res.status} → ${location} (fix MYDATA_BASE_URL)`)
   }
 
   const text = await res.text()
