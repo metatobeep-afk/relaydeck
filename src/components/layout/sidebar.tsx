@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, ShoppingCart, Package, Users, Truck,
-  Factory, Mail, Settings, LogOut, Tablet, ShieldCheck, X,
+  Factory, Mail, Settings, LogOut, Tablet, ShieldCheck, X, Boxes, Bell,
 } from 'lucide-react'
 import { LogoMark } from './logo-mark'
 import { L } from '@/lib/labels'
@@ -32,6 +32,7 @@ const navGroups = [
     label: L.operations,
     items: [
       { href: '/production', label: L.production, icon: Factory },
+      { href: '/stock',      label: 'Απόθεμα',    icon: Boxes },
       { href: '/suppliers',  label: L.suppliers,  icon: Truck },
       { href: '/marketing',  label: L.marketing,  icon: Mail },
     ],
@@ -54,11 +55,17 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
   const router   = useRouter()
   const supabase = createClient()
   const [isOwner, setIsOwner] = useState(false)
+  const [pendingCount, setPendingCount] = useState(0)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setIsOwner(data.user?.email === OWNER_EMAIL)
     })
+    supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('payment_status', 'pending_deposit')
+      .then(({ count }) => setPendingCount(count ?? 0))
   }, [])
 
   async function handleLogout() {
@@ -94,10 +101,18 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
       <div className="px-4 pt-5 pb-4">
         <div className="flex items-center gap-2.5">
           <LogoMark size={28} />
-          <div>
+          <div className="flex-1">
             <p className="sidebar-logo-name text-[14px] font-bold leading-tight tracking-tight">RelayDeck</p>
             <p className="sidebar-logo-sub text-[11px] leading-tight">B2B Platform</p>
           </div>
+          {pendingCount > 0 && (
+            <Link href="/orders?payment=pending_deposit" className="relative flex-shrink-0">
+              <Bell className="w-4 h-4 sidebar-logo-sub" />
+              <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                {pendingCount > 9 ? '9+' : pendingCount}
+              </span>
+            </Link>
+          )}
         </div>
       </div>
 

@@ -84,6 +84,50 @@ export default function OrderDetailPage() {
     await supabase.from('orders').update({ [field]: value }).eq('id', id)
     setOrder(prev => prev ? { ...prev, [field]: value } : prev)
     setSaving(false)
+
+    // Auto-notify customer on key shipping transitions
+    if (!order) return
+    const notify = (
+      (field === 'shipping_status' && value === 'shipped') ||
+      (field === 'shipping_status' && value === 'delivered')
+    )
+    if (notify) {
+      const subject = value === 'shipped'
+        ? `Η παραγγελία σας ${order.order_number} απεστάλη`
+        : `Η παραγγελία σας ${order.order_number} παραδόθηκε`
+      const bodyText = value === 'shipped'
+        ? `Η παραγγελία <strong>${order.order_number}</strong> έχει αποσταλεί και βρίσκεται καθ' οδόν.`
+        : `Η παραγγελία <strong>${order.order_number}</strong> έχει παραδοθεί επιτυχώς.`
+      const html = `
+        <!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#1e1e3c;background:#f5f6ff;margin:0;padding:24px">
+        <div style="max-width:520px;margin:0 auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08)">
+          <div style="background:linear-gradient(135deg,#4650c8,#6366f1);padding:24px 32px">
+            <h1 style="margin:0;color:white;font-size:20px">RelayDeck</h1>
+            <p style="margin:4px 0 0;color:rgba(255,255,255,.8);font-size:13px">${subject}</p>
+          </div>
+          <div style="padding:28px 32px">
+            <p>Αγαπητέ/ή <strong>${order.customers.contact_name}</strong>,</p>
+            <p style="font-size:15px;margin:16px 0">${bodyText}</p>
+            <div style="background:#f5f6ff;border-radius:8px;padding:12px 16px;font-size:13px;color:#555">
+              Αρ. Παραγγελίας: <strong>${order.order_number}</strong>
+            </div>
+          </div>
+          <div style="background:#f9f9fb;padding:14px 32px;text-align:center;font-size:11px;color:#aaa">
+            RelayDeck B2B Platform
+          </div>
+        </div></body></html>`
+      fetch('/api/email/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: order.customers.email,
+          toName: order.customers.business_name,
+          orderNumber: order.order_number,
+          subject,
+          htmlBody: html,
+        }),
+      })
+    }
   }
 
   async function handleMarkDeposit() {

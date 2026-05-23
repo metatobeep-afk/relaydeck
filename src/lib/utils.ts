@@ -18,23 +18,23 @@ export function computeUnitPrice(costPrice: number, multiplier: number) {
 }
 
 export const PAYMENT_STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending_deposit: { label: 'Pending Deposit', color: 'bg-yellow-100 text-yellow-800' },
-  deposit_received: { label: 'Deposit Received', color: 'bg-blue-100 text-blue-800' },
-  paid: { label: 'Paid', color: 'bg-green-100 text-green-800' },
-  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-800' },
+  pending_deposit:  { label: 'Αναμονή Προκαταβολής', color: 'bg-yellow-100 text-yellow-800' },
+  deposit_received: { label: 'Προκαταβολή Ελήφθη',   color: 'bg-blue-100 text-blue-800'   },
+  paid:             { label: 'Εξοφλημένη',            color: 'bg-green-100 text-green-800' },
+  cancelled:        { label: 'Ακυρωμένη',             color: 'bg-red-100 text-red-800'    },
 }
 
 export const PRODUCTION_STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  to_prepare: { label: 'To Prepare', color: 'bg-slate-100 text-slate-700' },
-  in_progress: { label: 'In Progress', color: 'bg-orange-100 text-orange-800' },
-  quality_check: { label: 'Quality Check', color: 'bg-purple-100 text-purple-800' },
-  ready_packaging: { label: 'Ready for Packaging', color: 'bg-cyan-100 text-cyan-800' },
-  ready_ship: { label: 'Ready to Ship', color: 'bg-indigo-100 text-indigo-800' },
-  completed: { label: 'Completed', color: 'bg-green-100 text-green-800' },
+  to_prepare:       { label: 'Προς Προετοιμασία',  color: 'bg-slate-100 text-slate-700'   },
+  in_progress:      { label: 'Σε Εξέλιξη',         color: 'bg-orange-100 text-orange-800' },
+  quality_check:    { label: 'Ποιοτικός Έλεγχος',  color: 'bg-purple-100 text-purple-800' },
+  ready_packaging:  { label: 'Έτοιμο Συσκευασία',  color: 'bg-cyan-100 text-cyan-800'    },
+  ready_ship:       { label: 'Έτοιμο Αποστολή',    color: 'bg-indigo-100 text-indigo-800' },
+  completed:        { label: 'Ολοκληρώθηκε',       color: 'bg-green-100 text-green-800'  },
 }
 
 export const SHIPPING_STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: 'Pending', color: 'bg-slate-100 text-slate-700' },
-  shipped: { label: 'Shipped', color: 'bg-blue-100 text-blue-800' },
-  delivered: { label: 'Delivered', color: 'bg-green-100 text-green-800' },
+  pending:   { label: 'Εκκρεμεί',    color: 'bg-slate-100 text-slate-700' },
+  shipped:   { label: 'Απεστάλη',    color: 'bg-blue-100 text-blue-800'  },
+  delivered: { label: 'Παραδόθηκε', color: 'bg-green-100 text-green-800' },
 }

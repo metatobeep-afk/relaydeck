@@ -65,20 +65,20 @@ export default function OrdersPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">Orders</h1>
+          <h1 className="text-xl font-semibold text-slate-900">Παραγγελίες</h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            {loading ? '—' : `${orders.length} orders`}
+            {loading ? '—' : `${orders.length} παραγγελίες`}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="w-3.5 h-3.5" />
-            Export CSV
+            Εξαγωγή CSV
           </Button>
           <Link href="/orders/new">
             <Button size="sm">
               <Plus className="w-3.5 h-3.5" />
-              New Order
+              Νέα Παραγγελία
             </Button>
           </Link>
         </div>
@@ -89,18 +89,18 @@ export default function OrdersPage() {
         <div className="relative flex-1 min-w-[160px]">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
           <Input
-            placeholder="Search order or customer…"
+            placeholder="Αναζήτηση παραγγελίας ή πελάτη…"
             className="pl-8 w-full h-8 text-sm"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
         <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-          <SelectTrigger className="w-44 h-8 text-sm">
-            <SelectValue placeholder="Payment" />
+          <SelectTrigger className="w-48 h-8 text-sm">
+            <SelectValue placeholder="Πληρωμή" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Payments</SelectItem>
+            <SelectItem value="all">Όλες οι Πληρωμές</SelectItem>
             {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) => (
               <SelectItem key={k} value={k}>{v.label}</SelectItem>
             ))}
@@ -108,10 +108,10 @@ export default function OrdersPage() {
         </Select>
         <Select value={productionFilter} onValueChange={setProductionFilter}>
           <SelectTrigger className="w-48 h-8 text-sm">
-            <SelectValue placeholder="Production" />
+            <SelectValue placeholder="Παραγωγή" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Stages</SelectItem>
+            <SelectItem value="all">Όλα τα Στάδια</SelectItem>
             {Object.entries(PRODUCTION_STATUS_LABELS).map(([k, v]) => (
               <SelectItem key={k} value={k}>{v.label}</SelectItem>
             ))}
@@ -124,14 +124,14 @@ export default function OrdersPage() {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Order</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Total</th>
-              <th>Payment</th>
-              <th>Production</th>
-              <th>Shipping</th>
-              <th><span className="sr-only">Actions</span></th>
+              <th>Παραγγελία</th>
+              <th>Πελάτης</th>
+              <th>Ημερομηνία</th>
+              <th>Σύνολο</th>
+              <th>Πληρωμή</th>
+              <th>Παραγωγή</th>
+              <th>Αποστολή</th>
+              <th><span className="sr-only">Ενέργειες</span></th>
             </tr>
           </thead>
           <tbody>
@@ -146,7 +146,7 @@ export default function OrdersPage() {
             ) : orders.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-16 text-center text-sm text-slate-400">
-                  No orders found
+                  Δεν βρέθηκαν παραγγελίες
                 </td>
               </tr>
             ) : orders.map(order => (
@@ -183,7 +183,7 @@ export default function OrdersPage() {
                     href={`/orders/${order.id}`}
                     className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 font-medium"
                   >
-                    View
+                    Προβολή
                     <ArrowRight className="w-3 h-3" />
                   </Link>
                 </td>
