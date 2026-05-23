@@ -9,7 +9,7 @@ import { L } from '@/lib/labels'
 import type { PaymentStatus, ProductionStatus, ShippingStatus } from '@/types/database'
 import {
   ArrowLeft, Send, Banknote, FileDown, User, Phone, Mail,
-  MapPin, FileText, CheckCircle2, AlertCircle, Loader2
+  MapPin, FileText, CheckCircle2, AlertCircle, Loader2, Receipt
 } from 'lucide-react'
 
 type FullOrder = {
@@ -21,6 +21,10 @@ type FullOrder = {
   production_status: ProductionStatus
   shipping_status: ShippingStatus
   created_at: string
+  invoice_mark: string | null
+  invoice_uid: string | null
+  invoice_number: string | null
+  invoiced_at: string | null
   customers: {
     id: string
     business_name: string
@@ -62,6 +66,7 @@ export default function OrderDetailPage() {
   const [saving, setSaving] = useState(false)
   const [emailState, setEmailState] = useState<ActionState>('idle')
   const [pdfState, setPdfState] = useState<ActionState>('idle')
+  const [invoiceState, setInvoiceState] = useState<ActionState>('idle')
 
   useEffect(() => {
     supabase
@@ -224,6 +229,30 @@ export default function OrderDetailPage() {
     }
   }
 
+  async function handleIssueInvoice() {
+    if (!order) return
+    if (!order.customers.vat_number) {
+      alert('Ο πελάτης δεν έχει ΑΦΜ. Προσθέστε ΑΦΜ στο προφίλ πελάτη πρώτα.')
+      return
+    }
+    setInvoiceState('loading')
+    try {
+      const res = await fetch('/api/mydata/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: id }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Σφάλμα')
+      setOrder(prev => prev ? { ...prev, invoice_mark: data.mark, invoice_number: data.invoice_number } : prev)
+      setInvoiceState('success')
+    } catch (err) {
+      console.error(err)
+      alert(err instanceof Error ? err.message : 'Σφάλμα έκδοσης τιμολογίου')
+      setInvoiceState('idle')
+    }
+  }
+
   if (!order) {
     return (
       <div className="flex items-center justify-center h-64 text-slate-400 text-sm">
@@ -254,6 +283,24 @@ export default function OrderDetailPage() {
         </div>
         {/* Action buttons */}
         <div className="flex gap-2">
+          {order.invoice_mark ? (
+            <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg font-medium">
+              <Receipt className="w-3.5 h-3.5" />
+              {order.invoice_number} · MARK: {order.invoice_mark}
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleIssueInvoice}
+              disabled={invoiceState === 'loading'}
+            >
+              {invoiceState === 'loading'
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <Receipt className="w-3.5 h-3.5" />}
+              Έκδοση Τιμολογίου
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -290,6 +337,7 @@ export default function OrderDetailPage() {
           </Button>
         </div>
       </div>
+
 
       <div className="grid grid-cols-3 gap-5 mb-5">
 

@@ -52,16 +52,22 @@ export interface Database {
           salesperson_id: string | null; total_price: number
           payment_status: PaymentStatus; production_status: ProductionStatus
           shipping_status: ShippingStatus; notes: string | null; created_at: string
+          invoice_mark: string | null; invoice_uid: string | null
+          invoice_number: string | null; invoiced_at: string | null
         }
         Insert: {
           id?: string; order_number?: string; customer_id: string
           salesperson_id?: string | null; total_price: number
           payment_status?: PaymentStatus; production_status?: ProductionStatus
           shipping_status?: ShippingStatus; notes?: string | null; created_at?: string
+          invoice_mark?: string | null; invoice_uid?: string | null
+          invoice_number?: string | null; invoiced_at?: string | null
         }
         Update: {
           payment_status?: PaymentStatus; production_status?: ProductionStatus
           shipping_status?: ShippingStatus; notes?: string | null; total_price?: number
+          invoice_mark?: string | null; invoice_uid?: string | null
+          invoice_number?: string | null; invoiced_at?: string | null
         }
       }
       order_items: {
