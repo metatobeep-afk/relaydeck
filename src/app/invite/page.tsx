@@ -47,32 +47,31 @@ function InviteForm() {
     if (!invite || !token) return
     setSaving(true)
 
-    // 1. Sign up the user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: invite.email,
-      password,
-      options: { data: { full_name: fullName } },
+    // Create user server-side via admin client (bypasses email confirmation)
+    const res = await fetch('/api/invite/accept', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password, full_name: fullName }),
     })
-    if (authError || !authData.user) {
+    const data = await res.json()
+
+    if (!res.ok || !data.success) {
       setSaving(false)
-      alert('Σφάλμα: ' + authError?.message)
+      alert('Σφάλμα: ' + (data.error ?? 'Άγνωστο σφάλμα'))
       return
     }
 
-    // 2. Register company via the register_company function
-    await supabase.rpc('register_company', {
-      p_company_name: invite.company_name,
-      p_slug: invite.company_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 32),
-      p_user_id: authData.user.id,
-      p_full_name: fullName,
+    // Sign in with the newly created account
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: invite.email,
+      password,
     })
 
-    // 3. Mark invite as accepted
-    const adminRes = await fetch('/api/invite/accept', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    })
+    if (signInError) {
+      setSaving(false)
+      alert('Σφάλμα σύνδεσης: ' + signInError.message)
+      return
+    }
 
     setSaving(false)
     setDone(true)
