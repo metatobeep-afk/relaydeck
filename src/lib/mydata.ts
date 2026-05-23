@@ -85,31 +85,38 @@ ${lineItems}
 }
 
 export async function submitToMyData(xml: string): Promise<{ mark: string; uid: string; authCode: string }> {
-  const res = await fetch(`${BASE_URL}SendInvoices`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/xml',
-      'aade-user-id': USER_ID,
-      'Ocp-Apim-Subscription-Key': SUBKEY,
-    },
-    body: xml,
-  })
+  const url = `${BASE_URL}SendInvoices`
+  let res: Response
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/xml',
+        'aade-user-id': USER_ID,
+        'Ocp-Apim-Subscription-Key': SUBKEY,
+      },
+      body: xml,
+    })
+  } catch (err: unknown) {
+    const cause = err instanceof Error ? (err as NodeJS.ErrnoException).cause ?? err.message : String(err)
+    throw new Error(`myDATA connection failed — URL: ${url} | Cause: ${cause}`)
+  }
 
   const text = await res.text()
 
   if (!res.ok) {
-    throw new Error(`myDATA HTTP ${res.status}: ${text.slice(0, 300)}`)
+    throw new Error(`myDATA HTTP ${res.status} from ${url}: ${text.slice(0, 400)}`)
   }
 
   const statusCode = text.match(/<statusCode>([^<]+)<\/statusCode>/)?.[1]
   if (statusCode !== 'Success') {
     const msg = text.match(/<message>([^<]+)<\/message>/)?.[1] ?? statusCode ?? 'Unknown error'
-    throw new Error(`myDATA: ${msg}`)
+    throw new Error(`myDATA validation error: ${msg}`)
   }
 
   return {
     mark:     text.match(/<invoiceMark>(\d+)<\/invoiceMark>/)?.[1]                    ?? '',
     uid:      text.match(/<invoiceUid>([^<]+)<\/invoiceUid>/)?.[1]                    ?? '',
-    authCode: text.match(/<authenticationCode>([^<]+)<\/authenticationCode>/)?.[1]   ?? '',
+    authCode: text.match(/<authenticationCode>([^<]+)<\/authenticationCode]/)?.[1]   ?? '',
   }
 }
