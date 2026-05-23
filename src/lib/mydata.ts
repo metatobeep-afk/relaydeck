@@ -87,23 +87,30 @@ ${lineItems}
 export async function submitToMyData(xml: string): Promise<{ mark: string; uid: string; authCode: string }> {
   // Ensure base URL always has a trailing slash so SendInvoices appends correctly
   const base = BASE_URL.endsWith('/') ? BASE_URL : `${BASE_URL}/`
-  const url = `${base}SendInvoices`
+  let url = `${base}SendInvoices`
 
+  const headers = {
+    'Content-Type': 'application/xml',
+    'aade-user-id': USER_ID,
+    'Ocp-Apim-Subscription-Key': SUBKEY,
+  }
+
+  // Follow redirects manually so we always re-send as POST (fetch changes POST→GET on 301/302)
   let res: Response
-  try {
-    res = await fetch(url, {
-      method: 'POST',
-      redirect: 'follow',
-      headers: {
-        'Content-Type': 'application/xml',
-        'aade-user-id': USER_ID,
-        'Ocp-Apim-Subscription-Key': SUBKEY,
-      },
-      body: xml,
-    })
-  } catch (err: unknown) {
-    const cause = err instanceof Error ? (err as NodeJS.ErrnoException).cause ?? err.message : String(err)
-    throw new Error(`myDATA connection failed — URL: ${url} | Cause: ${cause}`)
+  for (let attempt = 0; attempt <= 5; attempt++) {
+    try {
+      res = await fetch(url, { method: 'POST', redirect: 'manual', headers, body: xml })
+    } catch (err: unknown) {
+      const cause = err instanceof Error ? (err as NodeJS.ErrnoException).cause ?? err.message : String(err)
+      throw new Error(`myDATA connection failed — URL: ${url} | Cause: ${cause}`)
+    }
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get('location')
+      if (!location) throw new Error(`myDATA redirect ${res.status} with no Location header`)
+      url = location
+      continue
+    }
+    break
   }
 
   const text = await res.text()
